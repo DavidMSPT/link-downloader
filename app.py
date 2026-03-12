@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Web-based multi-part download manager."""
+"""Web-based multi-part download manager with Premiumize integration."""
 
 import asyncio
 import json
@@ -10,7 +10,7 @@ from urllib.parse import urlparse, unquote
 
 import httpx
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
@@ -18,10 +18,11 @@ app = FastAPI()
 # --- Config ---
 DEFAULT_SOURCE = "https://raw.githubusercontent.com/DavidMSPT/link-scraper/master/output/fitgirl-repacks.json"
 DEFAULT_OUTPUT = str(Path.home() / "Downloads" / "link-downloader")
-CONCURRENT_DOWNLOADS = 3
+CONCURRENT_DOWNLOADS = 5
+CONFIG_FILE = Path(__file__).parent / "config.json"
 
 # --- State ---
-active_downloads: dict[str, dict] = {}  # download_id -> status
+active_downloads: dict[str, dict] = {}
 connected_clients: list[WebSocket] = []
 
 HOST_NAMES = {
@@ -39,6 +40,18 @@ HOST_NAMES = {
     "rutor.info": "RuTor",
     "tapochek.net": "Tapochek",
 }
+
+
+def load_config() -> dict:
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE) as f:
+            return json.load(f)
+    return {}
+
+
+def save_config(cfg: dict):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(cfg, f, indent=2)
 
 
 def get_host(url: str) -> str:
@@ -79,6 +92,68 @@ async def broadcast(msg: dict):
             connected_clients.remove(ws)
 
 
+# --- Link Resolvers ---
+# Resolve file host URLs to direct download links without debrid services
+
+import re
+
+PREMIUMIZE_API = "https://www.premiumize.me/api"
+
+
+async def resolve_fuckingfast(client: httpx.AsyncClient, url: str) -> str | None:
+    """Extract direct download URL from fuckingfast.co page."""
+    try:
+        resp = await client.get(url, follow_redirects=True, timeout=15.0)
+        match = re.search(r'window\.open\(["\']([^"\']*)["\']', resp.text)
+        if match:
+            return match.group(1)
+    except Exception as e:
+        print(f"FuckingFast resolve error: {e}")
+    return None
+
+
+async def resolve_datanodes(client: httpx.AsyncClient, url: str) -> str | None:
+    """Try to resolve datanodes.to — requires reCAPTCHA, falls back to Premiumize."""
+    # Datanodes has reCAPTCHA, can't resolve without debrid
+    return None
+
+
+async def premiumize_resolve(client: httpx.AsyncClient, api_key: str, url: str) -> str | None:
+    """Resolve a file host URL to a direct download link via Premiumize."""
+    try:
+        resp = await client.post(
+            f"{PREMIUMIZE_API}/transfer/directdl",
+            data={"src": url},
+            params={"apikey": api_key},
+            timeout=30.0,
+        )
+        data = resp.json()
+        if data.get("status") == "success" and data.get("content"):
+            return data["content"][0].get("link")
+    except Exception as e:
+        print(f"Premiumize resolve error for {url}: {e}")
+    return None
+
+
+async def resolve_url(client: httpx.AsyncClient, url: str, api_key: str = "") -> str | None:
+    """Resolve a file host URL to a direct download link."""
+    host = get_host(url)
+
+    # Try direct resolvers first (no debrid needed)
+    if host == "fuckingfast.co":
+        result = await resolve_fuckingfast(client, url)
+        if result:
+            return result
+
+    # Fall back to Premiumize if configured
+    if api_key:
+        return await premiumize_resolve(client, api_key, url)
+
+    return None
+
+
+# --- Download ---
+
 async def download_file(client: httpx.AsyncClient, url: str, dest: Path, download_id: str, file_index: int, total_files: int):
     """Download a single file and broadcast progress."""
     filename = dest.name
@@ -105,16 +180,18 @@ async def download_file(client: httpx.AsyncClient, url: str, dest: Path, downloa
                     f.write(chunk)
                     downloaded += len(chunk)
 
-                    await broadcast({
-                        "type": "file_progress",
-                        "downloadId": download_id,
-                        "file": filename,
-                        "fileIndex": file_index,
-                        "totalFiles": total_files,
-                        "downloaded": downloaded,
-                        "total": total,
-                        "status": "downloading",
-                    })
+                    # Throttle broadcasts to avoid flooding
+                    if downloaded % (256 * 1024) < 65536:
+                        await broadcast({
+                            "type": "file_progress",
+                            "downloadId": download_id,
+                            "file": filename,
+                            "fileIndex": file_index,
+                            "totalFiles": total_files,
+                            "downloaded": downloaded,
+                            "total": total,
+                            "status": "downloading",
+                        })
 
         await broadcast({
             "type": "file_progress",
@@ -122,7 +199,7 @@ async def download_file(client: httpx.AsyncClient, url: str, dest: Path, downloa
             "file": filename,
             "fileIndex": file_index,
             "totalFiles": total_files,
-            "downloaded": total,
+            "downloaded": downloaded,
             "total": total,
             "status": "done",
         })
@@ -144,11 +221,14 @@ async def download_file(client: httpx.AsyncClient, url: str, dest: Path, downloa
 
 
 async def download_game_task(download_id: str, title: str, uris: list[str], output_dir: str):
-    """Download all parts for a game with parallel downloads."""
+    """Resolve links then download all parts in parallel."""
     out = Path(output_dir) / safe_dirname(title)
     out.mkdir(parents=True, exist_ok=True)
 
-    active_downloads[download_id] = {"title": title, "status": "downloading", "progress": 0}
+    cfg = load_config()
+    api_key = cfg.get("premiumize_key", "")
+
+    active_downloads[download_id] = {"title": title, "status": "downloading"}
 
     await broadcast({
         "type": "download_start",
@@ -157,15 +237,66 @@ async def download_game_task(download_id: str, title: str, uris: list[str], outp
         "totalFiles": len(uris),
     })
 
-    semaphore = asyncio.Semaphore(CONCURRENT_DOWNLOADS)
     client = httpx.AsyncClient(timeout=httpx.Timeout(30.0, read=600.0))
 
-    async def bounded_download(url, index):
-        async with semaphore:
-            dest = out / get_filename(url)
-            return await download_file(client, url, dest, download_id, index, len(uris))
+    # Phase 1: Resolve all links to direct download URLs
+    resolved = []
+    for i, uri in enumerate(uris):
+        filename = get_filename(uri)
+        await broadcast({
+            "type": "file_progress",
+            "downloadId": download_id,
+            "file": filename,
+            "fileIndex": i,
+            "totalFiles": len(uris),
+            "status": "resolving",
+        })
 
-    tasks = [bounded_download(url, i) for i, url in enumerate(uris)]
+        direct_url = await resolve_url(client, uri, api_key)
+        if direct_url:
+            resolved.append((direct_url, filename))
+        else:
+            host = get_host(uri)
+            error = f"Cannot resolve {host} (needs Premiumize)" if not api_key else f"Failed to resolve {host}"
+            await broadcast({
+                "type": "file_progress",
+                "downloadId": download_id,
+                "file": filename,
+                "fileIndex": i,
+                "totalFiles": len(uris),
+                "status": "error",
+                "error": error,
+            })
+
+    if not resolved:
+        active_downloads[download_id]["status"] = "error"
+        await broadcast({
+            "type": "download_complete",
+            "downloadId": download_id,
+            "title": title,
+            "success": False,
+            "path": str(out),
+        })
+        await client.aclose()
+        return
+
+    # Phase 2: Download resolved links in parallel
+    total_files = len(resolved)
+    await broadcast({
+        "type": "download_start",
+        "downloadId": download_id,
+        "title": title,
+        "totalFiles": total_files,
+    })
+
+    semaphore = asyncio.Semaphore(CONCURRENT_DOWNLOADS)
+
+    async def bounded_download(url, filename, index):
+        async with semaphore:
+            dest = out / filename
+            return await download_file(client, url, dest, download_id, index, total_files)
+
+    tasks = [bounded_download(url, fname, i) for i, (url, fname) in enumerate(resolved)]
     results = await asyncio.gather(*tasks)
 
     await client.aclose()
@@ -226,7 +357,12 @@ async def start_download(body: dict):
     host = body["host"]
     output_dir = body.get("outputDir", DEFAULT_OUTPUT)
 
-    # Filter URIs by host
+    # Hosts that work without debrid
+    FREE_HOSTS = {"fuckingfast.co"}
+    cfg = load_config()
+    if not cfg.get("premiumize_key") and host != "magnet" and host not in FREE_HOSTS:
+        return {"error": f"{HOST_NAMES.get(host, host)} requires Premiumize. Go to Settings, or use FuckingFast."}
+
     if host == "magnet":
         filtered = [u for u in uris if u.startswith("magnet:")]
     else:
@@ -244,7 +380,40 @@ async def start_download(body: dict):
 
 @app.get("/api/config")
 async def get_config():
-    return {"outputDir": DEFAULT_OUTPUT, "source": DEFAULT_SOURCE}
+    cfg = load_config()
+    return {
+        "outputDir": cfg.get("output_dir", DEFAULT_OUTPUT),
+        "source": cfg.get("source", DEFAULT_SOURCE),
+        "hasPremiumize": bool(cfg.get("premiumize_key")),
+    }
+
+
+@app.post("/api/config")
+async def set_config(body: dict):
+    cfg = load_config()
+    if "premiumize_key" in body:
+        cfg["premiumize_key"] = body["premiumize_key"]
+    if "output_dir" in body:
+        cfg["output_dir"] = body["output_dir"]
+    save_config(cfg)
+    return {"ok": True}
+
+
+@app.post("/api/premiumize/test")
+async def test_premiumize(body: dict):
+    """Test Premiumize API key."""
+    key = body.get("key", "")
+    if not key:
+        return {"ok": False, "error": "No key provided"}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.get(
+            f"{PREMIUMIZE_API}/account/info",
+            params={"apikey": key},
+        )
+        data = resp.json()
+        if data.get("status") == "success":
+            return {"ok": True, "customer_id": data.get("customer_id"), "premium_until": data.get("premium_until")}
+        return {"ok": False, "error": data.get("message", "Invalid key")}
 
 
 @app.websocket("/ws")

@@ -26,52 +26,42 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* Header */
     .header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
+      padding: 12px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      flex-shrink: 0;
     }
 
-    .header h1 {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
+    .header h1 { font-size: 18px; font-weight: 600; }
     .header h1 span { color: var(--accent); }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .header-right { display: flex; align-items: center; gap: 12px; }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
+      width: 8px; height: 8px; border-radius: 50%; background: var(--red);
     }
-
     .status-dot.connected { background: var(--green); }
 
     /* Search */
     .search-bar {
-      padding: 16px 24px;
+      padding: 10px 24px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       gap: 12px;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .search-bar input {
@@ -79,275 +69,168 @@
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       color: var(--text);
       font-size: 14px;
       outline: none;
     }
-
     .search-bar input:focus { border-color: var(--accent); }
 
     .search-bar select {
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       color: var(--text);
       font-size: 14px;
       outline: none;
       cursor: pointer;
     }
 
-    .game-count {
-      color: var(--text-dim);
-      font-size: 13px;
-      white-space: nowrap;
-    }
+    .game-count { color: var(--text-dim); font-size: 13px; white-space: nowrap; }
 
-    /* Layout */
-    .layout {
+    /* Main layout */
+    .main {
       display: flex;
-      height: calc(100vh - 120px);
+      flex: 1;
+      overflow: hidden;
     }
 
     /* Game list */
     .game-list {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
     }
 
     .game-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 10px;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
     }
-
     .game-card:hover { border-color: var(--accent); background: var(--surface2); }
     .game-card.selected { border-color: var(--accent); background: var(--surface2); }
 
-    .game-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
+    .game-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; line-height: 1.3; }
 
-    .game-meta {
-      display: flex;
-      gap: 16px;
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
+    .game-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-dim); }
     .game-size { color: var(--blue); font-weight: 500; }
 
-    .host-badges {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
+    .host-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
     .host-badge {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 11px;
-      color: var(--text-dim);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 10px; color: var(--text-dim);
     }
 
-    /* Download panel */
-    .download-panel {
+    /* Right panel */
+    .right-panel {
       width: 420px;
       background: var(--surface);
       border-left: 1px solid var(--border);
-      overflow-y: auto;
-      padding: 20px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
-    .panel-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
+    /* Download config (top of right panel) */
+    .download-config {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
-    .panel-section {
-      margin-bottom: 20px;
-    }
-
+    .panel-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; line-height: 1.3; }
+    .panel-section { margin-bottom: 14px; }
     .panel-label {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 11px; color: var(--text-dim); margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     .host-option {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      cursor: pointer;
-      transition: border-color 0.15s;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s;
     }
-
     .host-option:hover { border-color: var(--accent); }
     .host-option.selected { border-color: var(--accent); background: rgba(108, 92, 231, 0.1); }
-
-    .host-option-name { font-weight: 500; font-size: 14px; }
-    .host-option-count { color: var(--text-dim); font-size: 12px; }
+    .host-option-name { font-weight: 500; font-size: 13px; }
+    .host-option-count { color: var(--text-dim); font-size: 11px; }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-      width: 100%;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 9px 18px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;
     }
-
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-    }
-
+    .btn-primary { background: var(--accent); color: white; transition: background 0.15s; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Active downloads */
-    .downloads-section {
-      padding: 16px 24px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      max-height: 300px;
+    /* Active downloads (bottom of right panel) */
+    .downloads-area {
+      flex: 1;
       overflow-y: auto;
-      display: none;
+      padding: 12px 16px;
     }
 
-    .downloads-section.visible { display: block; }
-
-    .downloads-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
+    .downloads-title {
+      font-size: 12px; color: var(--text-dim); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 10px;
     }
-
-    .downloads-header h3 { font-size: 14px; font-weight: 600; }
 
     .dl-item {
-      background: var(--surface2);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 8px;
+      background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 8px;
     }
 
-    .dl-item-title {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
+    .dl-item-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
     }
+    .dl-item-title { font-size: 12px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dl-item-stats { font-size: 11px; color: var(--text-dim); margin-left: 8px; white-space: nowrap; }
 
     .dl-file {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-      font-size: 12px;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px;
     }
-
     .dl-file-name {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--text-dim);
+      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-dim);
     }
-
-    .dl-file-status { font-weight: 500; }
+    .dl-file-status { font-weight: 500; white-space: nowrap; }
+    .dl-file-status.resolving { color: var(--orange); }
     .dl-file-status.downloading { color: var(--blue); }
     .dl-file-status.done { color: var(--green); }
     .dl-file-status.error { color: var(--red); }
     .dl-file-status.skipped { color: var(--orange); }
 
     .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 4px;
+      width: 100%; height: 3px; background: var(--border);
+      border-radius: 2px; overflow: hidden; margin-top: 2px;
     }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .progress-fill.file { background: var(--accent); }
+    .progress-fill.overall { background: var(--green); }
 
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 2px;
-      transition: width 0.2s;
-    }
+    .dl-footer { font-size: 11px; margin-top: 8px; }
+    .dl-footer.success { color: var(--green); }
+    .dl-footer.error { color: var(--red); }
 
-    .dl-complete {
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 500;
-      margin-top: 8px;
-    }
-
-    .dl-error {
-      color: var(--red);
-      font-size: 12px;
-      margin-top: 8px;
-    }
-
-    /* Empty state */
     .empty-state {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-dim);
-      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-dim); font-size: 13px; padding: 40px 20px; text-align: center;
     }
 
-    /* Loading */
     .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 200px;
-      color: var(--text-dim);
+      display: flex; align-items: center; justify-content: center;
+      height: 200px; color: var(--text-dim);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
+    @keyframes spin { to { transform: rotate(360deg); } }
     .spinner {
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      margin-right: 10px;
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.6s linear infinite; margin-right: 8px;
     }
   </style>
 </head>
@@ -356,8 +239,30 @@
 <div class="header">
   <h1><span>Link</span> Downloader</h1>
   <div class="header-right">
+    <span class="settings-badge" id="premiumBadge" style="display:none;font-size:11px;color:var(--green);margin-right:8px">Premiumize</span>
+    <button onclick="toggleSettings()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">Settings</button>
     <div class="status-dot" id="statusDot"></div>
     <span style="font-size:12px;color:var(--text-dim)" id="statusText">Connecting...</span>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:440px;max-width:90vw">
+    <h3 style="margin-bottom:16px;font-size:16px">Settings</h3>
+    <div class="panel-section">
+      <div class="panel-label">Premiumize API Key</div>
+      <div style="display:flex;gap:8px">
+        <input type="password" id="premiumizeKey" placeholder="Enter your API key" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+        <button onclick="testPremiumize()" id="testBtn" style="background:var(--accent);color:white;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600">Test</button>
+      </div>
+      <div id="premiumizeStatus" style="font-size:11px;margin-top:6px;color:var(--text-dim)"></div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Get your API key from <a href="https://www.premiumize.me/account" target="_blank" style="color:var(--accent)">premiumize.me/account</a></p>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button onclick="toggleSettings()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Close</button>
+      <button onclick="saveSettings()" style="background:var(--accent);color:white;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600">Save</button>
+    </div>
   </div>
 </div>
 
@@ -369,36 +274,37 @@
   <span class="game-count" id="gameCount"></span>
 </div>
 
-<div class="layout">
+<div class="main">
+  <!-- Game list -->
   <div class="game-list" id="gameList">
     <div class="loading"><div class="spinner"></div>Loading games...</div>
   </div>
 
-  <div class="download-panel" id="downloadPanel">
-    <div class="empty-state" id="panelEmpty">Select a game to download</div>
-    <div id="panelContent" style="display:none">
-      <div class="panel-title" id="panelTitle"></div>
-
-      <div class="panel-section">
-        <div class="panel-label">Size</div>
-        <div id="panelSize" style="font-size:14px"></div>
+  <!-- Right panel: config + downloads -->
+  <div class="right-panel">
+    <div class="download-config" id="downloadConfig">
+      <div class="empty-state" id="panelEmpty">Select a game to download</div>
+      <div id="panelContent" style="display:none">
+        <div class="panel-title" id="panelTitle"></div>
+        <div class="panel-section">
+          <div class="panel-label">Size</div>
+          <div id="panelSize" style="font-size:14px"></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-label">Select Host</div>
+          <div id="hostOptions"></div>
+        </div>
+        <button class="btn btn-primary" id="downloadBtn" disabled>Download</button>
       </div>
+    </div>
 
-      <div class="panel-section">
-        <div class="panel-label">Select Host</div>
-        <div id="hostOptions"></div>
+    <div class="downloads-area" id="downloadsArea">
+      <div class="downloads-title">Downloads</div>
+      <div id="downloadsList">
+        <div class="empty-state" style="padding:20px">No active downloads</div>
       </div>
-
-      <button class="btn btn-primary" id="downloadBtn" disabled>Download</button>
     </div>
   </div>
-</div>
-
-<div class="downloads-section" id="downloadsSection">
-  <div class="downloads-header">
-    <h3>Active Downloads</h3>
-  </div>
-  <div id="downloadsList"></div>
 </div>
 
 <script>
@@ -431,14 +337,21 @@ function connectWS() {
     const msg = JSON.parse(e.data);
     handleWSMessage(msg);
   };
+
+  state.ws.onerror = (e) => {
+    console.error('WebSocket error:', e);
+  };
 }
 
 function handleWSMessage(msg) {
-  const section = document.getElementById('downloadsSection');
-  section.classList.add('visible');
-
   if (msg.type === 'download_start') {
-    state.downloads[msg.downloadId] = { title: msg.title, files: {}, totalFiles: msg.totalFiles, complete: false };
+    state.downloads[msg.downloadId] = {
+      title: msg.title,
+      files: {},
+      totalFiles: msg.totalFiles,
+      complete: false,
+      startTime: Date.now(),
+    };
     renderDownloads();
   }
 
@@ -461,23 +374,26 @@ function handleWSMessage(msg) {
 
 // --- Data ---
 async function loadGames() {
-  const resp = await fetch('/api/games');
-  const data = await resp.json();
-  state.games = data.games;
-  state.filtered = [...state.games];
+  try {
+    const resp = await fetch('/api/games');
+    const data = await resp.json();
+    state.games = data.games;
+    state.filtered = [...state.games];
 
-  // Populate host filter
-  const hosts = new Set();
-  state.games.forEach(g => Object.keys(g.hosts).forEach(h => { if (h !== 'magnet') hosts.add(h); }));
-  const select = document.getElementById('hostFilter');
-  hosts.forEach(h => {
-    const opt = document.createElement('option');
-    opt.value = h;
-    opt.textContent = hostName(h);
-    select.appendChild(opt);
-  });
+    const hosts = new Set();
+    state.games.forEach(g => Object.keys(g.hosts).forEach(h => { if (h !== 'magnet') hosts.add(h); }));
+    const select = document.getElementById('hostFilter');
+    hosts.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = hostName(h);
+      select.appendChild(opt);
+    });
 
-  renderGames();
+    renderGames();
+  } catch (e) {
+    document.getElementById('gameList').innerHTML = `<div class="empty-state">Failed to load games: ${e.message}</div>`;
+  }
 }
 
 function hostName(h) {
@@ -491,10 +407,9 @@ function hostName(h) {
 }
 
 function formatBytes(bytes) {
-  if (!bytes) return '';
+  if (!bytes) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
-  let i = 0;
-  let b = bytes;
+  let i = 0, b = bytes;
   while (b >= 1024 && i < units.length - 1) { b /= 1024; i++; }
   return `${b.toFixed(1)} ${units[i]}`;
 }
@@ -526,7 +441,7 @@ function renderGames() {
     const sel = state.selected === i ? 'selected' : '';
     return `
       <div class="game-card ${sel}" onclick="selectGame(${i})">
-        <div class="game-title">${escHtml(g.title)}</div>
+        <div class="game-title">${esc(g.title)}</div>
         <div class="game-meta">
           <span class="game-size">${g.fileSize || '?'}</span>
           <span>${formatDate(g.uploadDate)}</span>
@@ -547,9 +462,12 @@ function selectGame(index) {
   document.getElementById('panelTitle').textContent = game.title;
   document.getElementById('panelSize').textContent = game.fileSize || 'Unknown';
 
+  const DDL_HOSTS = ['datanodes.to', 'fuckingfast.co', 'gofile.io', 'buzzheavier.com',
+    'vikingfile.com', 'pixeldrain.com', 'mediafire.com', 'mega.nz', '1fichier.com'];
+
   const hostOpts = document.getElementById('hostOptions');
   hostOpts.innerHTML = Object.entries(game.hosts)
-    .filter(([k]) => k !== 'magnet' && k !== '1337x.to' && k !== 'rutor.info' && k !== 'tapochek.net')
+    .filter(([k]) => DDL_HOSTS.includes(k))
     .map(([host, info]) => `
       <div class="host-option" onclick="selectHost('${host}', this)">
         <span class="host-option-name">${info.name}</span>
@@ -557,7 +475,6 @@ function selectGame(index) {
       </div>
     `).join('');
 
-  // Add magnet option if available
   if (game.hosts.magnet) {
     hostOpts.innerHTML += `
       <div class="host-option" onclick="selectHost('magnet', this)">
@@ -568,6 +485,7 @@ function selectGame(index) {
   }
 
   document.getElementById('downloadBtn').disabled = true;
+  document.getElementById('downloadBtn').textContent = 'Download';
   renderGames();
 }
 
@@ -588,36 +506,71 @@ async function startDownload() {
     return;
   }
 
-  document.getElementById('downloadBtn').disabled = true;
-  document.getElementById('downloadBtn').textContent = 'Starting...';
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Starting...';
 
-  const resp = await fetch('/api/download', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: game.title,
-      uris: game.uris,
-      host: state.selectedHost,
-    }),
-  });
+  try {
+    const resp = await fetch('/api/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: game.title,
+        uris: game.uris,
+        host: state.selectedHost,
+      }),
+    });
 
-  const data = await resp.json();
-  document.getElementById('downloadBtn').textContent = 'Download';
-  document.getElementById('downloadBtn').disabled = false;
+    const data = await resp.json();
+
+    if (data.error) {
+      btn.textContent = 'Error: ' + data.error;
+      setTimeout(() => { btn.textContent = 'Download'; btn.disabled = false; }, 3000);
+      return;
+    }
+
+    btn.textContent = `Downloading ${data.files} files...`;
+    setTimeout(() => { btn.textContent = 'Download'; btn.disabled = false; }, 2000);
+  } catch (e) {
+    btn.textContent = 'Failed';
+    setTimeout(() => { btn.textContent = 'Download'; btn.disabled = false; }, 3000);
+  }
 }
 
 function renderDownloads() {
   const list = document.getElementById('downloadsList');
-  list.innerHTML = Object.entries(state.downloads).map(([id, dl]) => {
-    const files = Object.values(dl.files).map(f => {
+  const entries = Object.entries(state.downloads);
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px">No active downloads</div>';
+    return;
+  }
+
+  list.innerHTML = entries.reverse().map(([id, dl]) => {
+    const fileEntries = Object.values(dl.files);
+    const doneFiles = fileEntries.filter(f => f.status === 'done' || f.status === 'skipped').length;
+    const overallPct = dl.totalFiles ? Math.round((doneFiles / dl.totalFiles) * 100) : 0;
+
+    // Total bytes
+    let totalDown = 0, totalSize = 0;
+    fileEntries.forEach(f => {
+      if (f.downloaded) totalDown += f.downloaded;
+      if (f.total) totalSize += f.total;
+    });
+
+    const files = fileEntries.map(f => {
       let statusText = '';
-      let statusClass = f.status;
-      if (f.status === 'downloading' && f.total) {
-        statusText = `${formatBytes(f.downloaded)} / ${formatBytes(f.total)}`;
+      if (f.status === 'resolving') {
+        statusText = 'Resolving...';
+      } else if (f.status === 'downloading' && f.total) {
+        const pct = Math.round((f.downloaded / f.total) * 100);
+        statusText = `${pct}% (${formatBytes(f.downloaded)})`;
+      } else if (f.status === 'downloading') {
+        statusText = 'Starting...';
       } else if (f.status === 'done') {
         statusText = 'Done';
       } else if (f.status === 'error') {
-        statusText = 'Error';
+        statusText = f.error ? `${f.error.substring(0, 40)}` : 'Error';
       } else if (f.status === 'skipped') {
         statusText = 'Exists';
       }
@@ -626,35 +579,41 @@ function renderDownloads() {
 
       return `
         <div class="dl-file">
-          <span class="dl-file-name">${escHtml(f.file)}</span>
-          <span class="dl-file-status ${statusClass}">${statusText}</span>
+          <span class="dl-file-name">${esc(f.file)}</span>
+          <span class="dl-file-status ${f.status}">${statusText}</span>
         </div>
-        ${f.status === 'downloading' ? `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>` : ''}
+        ${f.status === 'downloading' ? `<div class="progress-bar"><div class="progress-fill file" style="width:${pct}%"></div></div>` : ''}
       `;
     }).join('');
 
-    const doneFiles = Object.values(dl.files).filter(f => f.status === 'done' || f.status === 'skipped').length;
-    const overallPct = dl.totalFiles ? Math.round((doneFiles / dl.totalFiles) * 100) : 0;
-
     let footer = '';
     if (dl.complete && dl.success) {
-      footer = `<div class="dl-complete">Download complete - ${escHtml(dl.path)}</div>`;
+      footer = `<div class="dl-footer success">Complete - saved to ${esc(dl.path)}</div>`;
     } else if (dl.complete && !dl.success) {
-      footer = `<div class="dl-error">Some files failed to download</div>`;
+      footer = `<div class="dl-footer error">Some files failed</div>`;
     }
+
+    const statsText = totalSize > 0
+      ? `${formatBytes(totalDown)} / ${formatBytes(totalSize)}`
+      : `${doneFiles}/${dl.totalFiles} files`;
 
     return `
       <div class="dl-item">
-        <div class="dl-item-title">${escHtml(dl.title)} (${doneFiles}/${dl.totalFiles})</div>
+        <div class="dl-item-header">
+          <span class="dl-item-title">${esc(dl.title)}</span>
+          <span class="dl-item-stats">${statsText}</span>
+        </div>
+        <div class="progress-bar" style="margin-bottom:8px">
+          <div class="progress-fill overall" style="width:${overallPct}%"></div>
+        </div>
         ${files}
-        <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${overallPct}%;background:var(--green)"></div></div>
         ${footer}
       </div>
     `;
   }).join('');
 }
 
-function escHtml(s) {
+function esc(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
@@ -665,9 +624,67 @@ document.getElementById('searchInput').addEventListener('input', renderGames);
 document.getElementById('hostFilter').addEventListener('change', renderGames);
 document.getElementById('downloadBtn').addEventListener('click', startDownload);
 
+// --- Settings ---
+function toggleSettings() {
+  const modal = document.getElementById('settingsModal');
+  modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+}
+
+async function loadSettings() {
+  const resp = await fetch('/api/config');
+  const cfg = await resp.json();
+  if (cfg.hasPremiumize) {
+    document.getElementById('premiumBadge').style.display = 'inline';
+    document.getElementById('premiumizeKey').placeholder = '••••••••••••••••';
+  }
+}
+
+async function testPremiumize() {
+  const key = document.getElementById('premiumizeKey').value;
+  const status = document.getElementById('premiumizeStatus');
+  const btn = document.getElementById('testBtn');
+
+  if (!key) { status.textContent = 'Enter a key first'; status.style.color = 'var(--red)'; return; }
+
+  btn.textContent = 'Testing...';
+  try {
+    const resp = await fetch('/api/premiumize/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      status.textContent = `Valid! Customer: ${data.customer_id}`;
+      status.style.color = 'var(--green)';
+    } else {
+      status.textContent = `Error: ${data.error}`;
+      status.style.color = 'var(--red)';
+    }
+  } catch (e) {
+    status.textContent = 'Connection error';
+    status.style.color = 'var(--red)';
+  }
+  btn.textContent = 'Test';
+}
+
+async function saveSettings() {
+  const key = document.getElementById('premiumizeKey').value;
+  if (key) {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ premiumize_key: key }),
+    });
+    document.getElementById('premiumBadge').style.display = 'inline';
+  }
+  toggleSettings();
+}
+
 // --- Init ---
 connectWS();
 loadGames();
+loadSettings();
 </script>
 </body>
 </html>

@@ -7,3 +7,4 @@ downloads/
 *.egg-info/
 dist/
 build/
+config.json
